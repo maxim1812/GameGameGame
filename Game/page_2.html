@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Game P2</title>
+</head>
+<body>
+
+<canvas width = '800' height = '600' id='can'></canvas>	
+<p id = 'inf'></p>
+
+<script>
+	let can = document.getElementById('can');
+	let holst = can.getContext('2d');
+	let moveVector = 'Z';
+	let interval;
+</script>
+
+<script src = 'Modules/heroObj.js'></script>
+<script src = 'Modules/holstFunctions.js'></script>
+<script src = 'Modules/helpingFunctions.js'></script>
+
+<script>
+	clearHolst();
+	
+	let hero = getHero();
+	hero.x = 200;
+	hero.y = 300;
+	hero.draw();
+	
+	let enemy = getEnemy();
+	enemy.x = 500;
+	enemy.y = 300;
+	enemy.draw();
+</script>
+
+
+<script>
+
+window.onkeydown = function(event)
+{	
+	moveVector = getNapr(event.keyCode);
+}
+
+function getPosition()
+{
+	var script = "PHP/gameScript.php?tip=" + 2 + "&x=" + enemy.x + "&y=" + enemy.y;
+	var r = new XMLHttpRequest();
+	r.open("POST",script);
+	r.setRequestHeader("Content-Type","text/plain;charset=UTF-8");
+	r.send(null);
+	r.onreadystatechange = function()
+	{
+		if(r.readyState === 4 && r.status === 200) 
+		{
+			document.getElementById('inf').innerHTML = r.responseText;
+			
+			let mass = new Array();
+			mass = r.responseText.split("_");
+			
+			mass[0] = parseInt(mass[0]);
+			mass[1] = parseInt(mass[1]);
+			mass[2] = parseInt(mass[2]);
+			mass[3] = parseInt(mass[3]);
+			
+			hero.x = mass[0];
+			hero.y = mass[1];
+		}
+	}
+}
+
+function intervalRepeatingFunction()
+{
+	if(moveVector == 'D') enemy.x += enemy.speed;
+	if(moveVector == 'A') enemy.x -= enemy.speed;
+	if(moveVector == 'S') enemy.y += enemy.speed;
+	if(moveVector == 'W') enemy.y -= enemy.speed;	
+	clearHolst();
+	getPosition();
+	hero.draw();
+	enemy.draw();
+}
+
+interval = setInterval(intervalRepeatingFunction,100);
+
+
+</script>
+
+</body>
+</html>
